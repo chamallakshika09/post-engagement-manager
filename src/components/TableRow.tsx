@@ -2,7 +2,6 @@ import { useNavigate } from 'react-router-dom';
 import { Post } from '../types/data';
 import instagramImage from '../assets/img/instagram.png';
 import messengerImage from '../assets/img/messenger.png';
-
 import { DropdownListItem } from '../types/ui';
 import DropdownList from './DropdownList';
 
@@ -15,10 +14,12 @@ const TableRow = ({
   post,
   onRename,
   onDelete,
+  direction = 'dropdown-end',
 }: {
   post: Post;
   onRename: (key: string, newName: string) => void;
   onDelete: (key: string) => void;
+  direction?: 'dropdown-end' | 'dropdown-top';
 }) => {
   const navigate = useNavigate();
 
@@ -56,14 +57,14 @@ const TableRow = ({
         </div>
       </td>
       <td style={{ width: '20px' }}>
-        <img className="w-3.5h-3.5" src={imageMap[post.platform]} alt={post.platform} />
+        <img className="h-3.5 w-3.5" src={imageMap[post.platform]} alt={post.platform} />
       </td>
       <td style={{ width: '150px' }}>{post.name}</td>
       <td style={{ width: '150px' }}>{post.engaged}</td>
       <td style={{ width: '150px' }}>{post.acquired}</td>
       <td style={{ width: '150px' }}>{post.conversion}</td>
       <td style={{ width: '20px' }}>
-        <DropdownList items={menuItems} buttonText="Actions" />
+        <DropdownList items={menuItems} buttonText="Actions" direction={direction} />
       </td>
     </tr>
   );

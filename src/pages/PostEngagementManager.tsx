@@ -1,31 +1,18 @@
 import { useState } from 'react';
 import BulkActionsMenu from '../components/BulkActionsMenu';
-import Pagination from '../components/Pagination';
 import SearchField from '../components/SearchField';
 import Sidebar from '../components/Sidebar';
-import TableHeader from '../components/TableHeader';
-import TableRow from '../components/TableRow';
+import PostTable from '../components/PostTable';
 import { posts as initialPosts } from '../data/posts';
 import NavbarLayout from '../layouts/NavbarLayout';
-
-const itemsPerPage = 10;
+import { Post } from '../types/data';
 
 const PostEngagementManager = () => {
-  const [posts, setPosts] = useState(initialPosts);
+  const [posts, setPosts] = useState<Post[]>(initialPosts);
   const [searchQuery, setSearchQuery] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
-
-  const filteredPosts = posts.filter((post) => post.name.toLowerCase().includes(searchQuery.toLowerCase()));
-
-  const paginatedPosts = filteredPosts.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
-    setCurrentPage(1);
-  };
-
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
   };
 
   const handleRename = (key: string, newName: string) => {
@@ -51,21 +38,7 @@ const PostEngagementManager = () => {
                   <SearchField onSearch={handleSearch} />
                   <BulkActionsMenu />
                 </div>
-                <div className="overflow-y-hidden overflow-x-scroll">
-                  <table className="table table-sm bg-base-100 px-6">
-                    <TableHeader />
-                    <tbody>
-                      {paginatedPosts.map((post) => (
-                        <TableRow key={post.key} post={post} onRename={handleRename} onDelete={handleDelete} />
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-                <Pagination
-                  currentPage={currentPage}
-                  totalPages={Math.ceil(filteredPosts.length / itemsPerPage)}
-                  onPageChange={handlePageChange}
-                />
+                <PostTable posts={posts} onRename={handleRename} onDelete={handleDelete} searchQuery={searchQuery} />
               </div>
             </div>
           </div>
