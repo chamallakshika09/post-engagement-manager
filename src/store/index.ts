@@ -1,9 +1,10 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { useDispatch } from 'react-redux';
+import postsSlice from './postsSlice';
 
 const store = configureStore({
   reducer: {
-    // Your reducers here
+    posts: postsSlice,
   },
 });
 

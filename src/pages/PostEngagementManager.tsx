@@ -3,6 +3,7 @@ import BulkActionsMenu from '../components/BulkActionsMenu';
 import SearchField from '../components/SearchField';
 import Sidebar from '../components/Sidebar';
 import PostTable from '../components/PostTable';
+import Modal from '../components/Modal';
 import { posts as initialPosts } from '../data/posts';
 import NavbarLayout from '../layouts/NavbarLayout';
 import { Post } from '../types/data';
@@ -10,6 +11,8 @@ import { Post } from '../types/data';
 const PostEngagementManager = () => {
   const [posts, setPosts] = useState<Post[]>(initialPosts);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isBulkDeleteModalOpen, setIsBulkDeleteModalOpen] = useState(false);
+  const [selectedPosts, setSelectedPosts] = useState<Set<string>>(new Set());
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
@@ -21,6 +24,19 @@ const PostEngagementManager = () => {
 
   const handleDelete = (key: string) => {
     setPosts(posts.filter((post) => post.key !== key));
+  };
+
+  const handleBulkDelete = () => {
+    setPosts(posts.filter((post) => !selectedPosts.has(post.key)));
+    setSelectedPosts(new Set());
+  };
+
+  const openBulkDeleteModal = () => {
+    setIsBulkDeleteModalOpen(true);
+  };
+
+  const closeBulkDeleteModal = () => {
+    setIsBulkDeleteModalOpen(false);
   };
 
   return (
@@ -36,14 +52,30 @@ const PostEngagementManager = () => {
                     <h4 className="truncate text-xl">Post Engagements</h4>
                   </div>
                   <SearchField onSearch={handleSearch} />
-                  <BulkActionsMenu />
+                  <BulkActionsMenu onBulkDelete={openBulkDeleteModal} />
                 </div>
-                <PostTable posts={posts} onRename={handleRename} onDelete={handleDelete} searchQuery={searchQuery} />
+                <PostTable
+                  posts={posts}
+                  onRename={handleRename}
+                  onDelete={handleDelete}
+                  searchQuery={searchQuery}
+                  selectedPosts={selectedPosts}
+                  setSelectedPosts={setSelectedPosts}
+                />
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      <Modal
+        isOpen={isBulkDeleteModalOpen}
+        onClose={closeBulkDeleteModal}
+        onConfirm={handleBulkDelete}
+        title="Are you sure you want to delete selected posts?"
+      >
+        <p>Deleting {selectedPosts.size} posts.</p>
+      </Modal>
     </NavbarLayout>
   );
 };

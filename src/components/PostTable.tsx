@@ -11,15 +11,18 @@ const PostTable = ({
   onRename,
   onDelete,
   searchQuery,
+  selectedPosts,
+  setSelectedPosts,
 }: {
   posts: Post[];
   onRename: (key: string, newName: string) => void;
   onDelete: (key: string) => void;
   searchQuery: string;
+  selectedPosts: Set<string>;
+  setSelectedPosts: (selectedPosts: Set<string>) => void;
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [sortConfig, setSortConfig] = useState<{ key: keyof Post; direction: 'ascending' | 'descending' } | null>(null);
-  const [selectedPosts, setSelectedPosts] = useState<Set<string>>(new Set());
 
   const sortedPosts = useMemo(() => {
     const sortablePosts = [...posts];

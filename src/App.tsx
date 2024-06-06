@@ -1,5 +1,5 @@
 import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
-import { lazy } from 'react';
+import { Suspense, lazy } from 'react';
 import { Provider } from 'react-redux';
 import store from './store';
 
@@ -13,11 +13,19 @@ const router = createBrowserRouter([
   },
   {
     path: '/post-engagement',
-    element: <PostEngagementManager />,
+    element: (
+      <Suspense fallback={null}>
+        <PostEngagementManager />
+      </Suspense>
+    ),
   },
   {
     path: '/post-engagement/:id',
-    element: <PostEngagementBuilder />,
+    element: (
+      <Suspense fallback={null}>
+        <PostEngagementBuilder />
+      </Suspense>
+    ),
   },
 ]);
 
