@@ -14,11 +14,15 @@ const TableRow = ({
   post,
   onRename,
   onDelete,
+  isSelected,
+  onSelect,
   direction = 'dropdown-end',
 }: {
   post: Post;
   onRename: (key: string, newName: string) => void;
   onDelete: (key: string) => void;
+  isSelected: boolean;
+  onSelect: (key: string, isSelected: boolean) => void;
   direction?: 'dropdown-end' | 'dropdown-top';
 }) => {
   const navigate = useNavigate();
@@ -53,7 +57,12 @@ const TableRow = ({
     <tr>
       <td style={{ width: '20px' }}>
         <div className="px-1">
-          <input type="checkbox" className="checkbox checkbox-sm" />
+          <input
+            type="checkbox"
+            className="checkbox checkbox-sm"
+            checked={isSelected}
+            onChange={(e) => onSelect(post.key, e.target.checked)}
+          />
         </div>
       </td>
       <td style={{ width: '20px' }}>
