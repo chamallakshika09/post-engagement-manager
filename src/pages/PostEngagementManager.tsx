@@ -5,9 +5,8 @@ import Sidebar from '../components/Sidebar';
 import PostTable from '../components/PostTable';
 import Modal from '../components/Modal';
 import NavbarLayout from '../layouts/NavbarLayout';
-import { useAppDispatch } from '../store';
+import { useAppDispatch, useAppSelector } from '../store';
 import { deleteSelectedPosts, fetchPosts, selectError, selectSelectedPosts, selectStatus } from '../store/postsSlice';
-import { useSelector } from 'react-redux';
 import ErrorMessage from '../components/ErrorMessage';
 import Loader from '../components/Loader';
 
@@ -16,9 +15,9 @@ const PostEngagementManager = () => {
 
   const [isBulkDeleteModalOpen, setIsBulkDeleteModalOpen] = useState(false);
 
-  const selectedPosts = useSelector(selectSelectedPosts);
-  const status = useSelector(selectStatus);
-  const error = useSelector(selectError);
+  const selectedPosts = useAppSelector(selectSelectedPosts);
+  const status = useAppSelector(selectStatus);
+  const error = useAppSelector(selectError);
 
   const handleBulkDelete = () => {
     dispatch(deleteSelectedPosts());

@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction, createAsyncThunk, createSelector } from '@reduxjs/toolkit';
 import { Post } from '../types/data';
 import { initialPosts } from '../data/posts';
 
@@ -16,6 +16,9 @@ interface PostsState {
   error: string | null;
   selectedPosts: Set<string>;
   searchQuery: string;
+  sortConfig: { key: keyof Post; direction: 'ascending' | 'descending' } | null;
+  currentPage: number;
+  itemsPerPage: number;
 }
 
 const initialState: PostsState = {
@@ -24,6 +27,9 @@ const initialState: PostsState = {
   error: null,
   selectedPosts: new Set(),
   searchQuery: '',
+  sortConfig: null,
+  currentPage: 1,
+  itemsPerPage: 10,
 };
 
 const postsSlice = createSlice({
@@ -52,6 +58,18 @@ const postsSlice = createSlice({
     setSearchQuery: (state, action: PayloadAction<string>) => {
       state.searchQuery = action.payload;
     },
+    setSortConfig: (
+      state,
+      action: PayloadAction<{ key: keyof Post; direction: 'ascending' | 'descending' } | null>
+    ) => {
+      state.sortConfig = action.payload;
+    },
+    setCurrentPage: (state, action: PayloadAction<number>) => {
+      state.currentPage = action.payload;
+    },
+    setItemsPerPage: (state, action: PayloadAction<number>) => {
+      state.itemsPerPage = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -73,11 +91,63 @@ const postsSlice = createSlice({
     selectError: (sliceState) => sliceState.error,
     selectSelectedPosts: (sliceState) => sliceState.selectedPosts,
     selectSearchQuery: (sliceState) => sliceState.searchQuery,
+    selectSortConfig: (sliceState) => sliceState.sortConfig,
+    selectCurrentPage: (sliceState) => sliceState.currentPage,
+    selectItemsPerPage: (sliceState) => sliceState.itemsPerPage,
   },
 });
 
-export const { addPost, removePost, updatePost, deleteSelectedPosts, setSelectedPosts, setSearchQuery } =
-  postsSlice.actions;
-export const { selectPosts, selectStatus, selectError, selectSelectedPosts, selectSearchQuery } = postsSlice.selectors;
+export const {
+  addPost,
+  removePost,
+  updatePost,
+  deleteSelectedPosts,
+  setSelectedPosts,
+  setSearchQuery,
+  setSortConfig,
+  setCurrentPage,
+  setItemsPerPage,
+} = postsSlice.actions;
+
+export const {
+  selectPosts,
+  selectStatus,
+  selectError,
+  selectSelectedPosts,
+  selectSearchQuery,
+  selectSortConfig,
+  selectCurrentPage,
+  selectItemsPerPage,
+} = postsSlice.selectors;
 
 export default postsSlice.reducer;
+
+export const selectFilteredPosts = createSelector([selectPosts, selectSearchQuery], (posts, searchQuery) =>
+  posts.filter((post) => post.name.toLowerCase().includes(searchQuery.toLowerCase()))
+);
+
+export const selectSortedPosts = createSelector(
+  [selectFilteredPosts, selectSortConfig],
+  (filteredPosts, sortConfig) => {
+    if (!sortConfig) return filteredPosts;
+
+    return [...filteredPosts].sort((a, b) => {
+      if (a[sortConfig.key] < b[sortConfig.key]) {
+        return sortConfig.direction === 'ascending' ? -1 : 1;
+      }
+      if (a[sortConfig.key] > b[sortConfig.key]) {
+        return sortConfig.direction === 'ascending' ? 1 : -1;
+      }
+      return 0;
+    });
+  }
+);
+
+export const selectPaginatedPosts = createSelector(
+  [selectSortedPosts, selectCurrentPage, selectItemsPerPage],
+  (sortedPosts, currentPage, itemsPerPage) => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return sortedPosts.slice(startIndex, endIndex);
+  }
+);

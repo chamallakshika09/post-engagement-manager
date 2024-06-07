@@ -1,21 +1,20 @@
 import { Post } from '../types/data';
 import DownArrowIcon from '../assets/icons/DownArrow.icon';
-import { useAppDispatch } from '../store';
-import { useSelector } from 'react-redux';
-import { selectSelectedPosts, setSelectedPosts } from '../store/postsSlice';
+import { useAppDispatch, useAppSelector } from '../store';
+import {
+  selectPaginatedPosts,
+  selectSelectedPosts,
+  selectSortConfig,
+  setSelectedPosts,
+  setSortConfig,
+} from '../store/postsSlice';
 
-const TableHeader = ({
-  onSort,
-  sortConfig,
-  paginatedPosts,
-}: {
-  onSort: (key: keyof Post) => void;
-  sortConfig: { key: keyof Post; direction: 'ascending' | 'descending' } | null;
-  paginatedPosts: Post[];
-}) => {
+const TableHeader = () => {
   const dispatch = useAppDispatch();
 
-  const selectedPosts = useSelector(selectSelectedPosts);
+  const selectedPosts = useAppSelector(selectSelectedPosts);
+  const sortConfig = useAppSelector(selectSortConfig);
+  const paginatedPosts = useAppSelector(selectPaginatedPosts);
 
   const handleSelectAll = (isSelected: boolean) => {
     if (isSelected) {
@@ -25,6 +24,20 @@ const TableHeader = ({
       const newSelectedPosts = new Set([...selectedPosts]);
       paginatedPosts.forEach((post) => newSelectedPosts.delete(post.key));
       dispatch(setSelectedPosts(newSelectedPosts));
+    }
+  };
+
+  const handleSort = (key: keyof Post) => {
+    if (sortConfig && sortConfig.key === key) {
+      if (sortConfig.direction === 'ascending') {
+        dispatch(setSortConfig({ key, direction: 'descending' }));
+      } else if (sortConfig.direction === 'descending') {
+        dispatch(setSortConfig(null));
+      } else {
+        dispatch(setSortConfig({ key, direction: 'ascending' }));
+      }
+    } else {
+      dispatch(setSortConfig({ key, direction: 'ascending' }));
     }
   };
 
@@ -44,7 +57,7 @@ const TableHeader = ({
         <th style={{ width: '20px' }}>
           <div className="px-1"></div>
         </th>
-        <th style={{ width: '150px' }} onClick={() => onSort('name')}>
+        <th style={{ width: '150px' }} onClick={() => handleSort('name')}>
           <div className="cursor-pointer select-none flex items-center">
             Name
             {sortConfig?.key === 'name' && <DownArrowIcon direction={sortConfig.direction} />}
@@ -53,13 +66,13 @@ const TableHeader = ({
         <th style={{ width: '150px' }}>
           <div className="px-1">Engaged / Unique</div>
         </th>
-        <th style={{ width: '150px' }} onClick={() => onSort('acquired')}>
+        <th style={{ width: '150px' }} onClick={() => handleSort('acquired')}>
           <div className="cursor-pointer select-none flex items-center">
             Acquired
             {sortConfig?.key === 'acquired' && <DownArrowIcon direction={sortConfig.direction} />}
           </div>
         </th>
-        <th style={{ width: '150px' }} onClick={() => onSort('conversion')}>
+        <th style={{ width: '150px' }} onClick={() => handleSort('conversion')}>
           <div className="cursor-pointer select-none flex items-center">
             Conversion
             {sortConfig?.key === 'conversion' && <DownArrowIcon direction={sortConfig.direction} />}

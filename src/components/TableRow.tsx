@@ -7,8 +7,7 @@ import { DropdownListItem } from '../types/ui';
 import DropdownList from './DropdownList';
 import Modal from './Modal';
 import { removePost, selectSelectedPosts, setSelectedPosts, updatePost } from '../store/postsSlice';
-import { useAppDispatch } from '../store';
-import { useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../store';
 
 const imageMap: { [key: string]: string } = {
   instagram: instagramImage,
@@ -29,7 +28,7 @@ const TableRow = ({
   const [modalType, setModalType] = useState<'rename' | 'delete' | null>(null);
   const [newName, setNewName] = useState(post.name);
 
-  const selectedPosts = useSelector(selectSelectedPosts);
+  const selectedPosts = useAppSelector(selectSelectedPosts);
 
   const handleEdit = () => {
     navigate(`/post-engagement/${post.key}`);

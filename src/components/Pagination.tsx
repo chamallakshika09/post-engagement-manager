@@ -3,40 +3,38 @@ import GoToFirstIcon from '../assets/icons/GoToFirst.icon';
 import GoToLastIcon from '../assets/icons/GoToLast.icon';
 import NextIcon from '../assets/icons/Next.icon';
 import PreviousIcon from '../assets/icons/Previous.icon';
+import { useAppDispatch, useAppSelector } from '../store';
+import { selectCurrentPage, setCurrentPage } from '../store/postsSlice';
 
-const Pagination = ({
-  currentPage,
-  totalPages,
-  onPageChange,
-}: {
-  currentPage: number;
-  totalPages: number;
-  onPageChange: (page: number) => void;
-}) => {
+const Pagination = ({ totalPages }: { totalPages: number }) => {
+  const dispatch = useAppDispatch();
+
+  const currentPage = useAppSelector(selectCurrentPage);
+
   const handleClickNext = () => {
     if (currentPage < totalPages) {
-      onPageChange(currentPage + 1);
+      dispatch(setCurrentPage(currentPage + 1));
     }
   };
 
   const handleClickPrevious = () => {
     if (currentPage > 1) {
-      onPageChange(currentPage - 1);
+      dispatch(setCurrentPage(currentPage - 1));
     }
   };
 
   const handleClickFirst = () => {
-    onPageChange(1);
+    dispatch(setCurrentPage(1));
   };
 
   const handleClickLast = () => {
-    onPageChange(totalPages);
+    dispatch(setCurrentPage(totalPages));
   };
 
   const handlePageChange = (e: ChangeEvent<HTMLInputElement>) => {
     const value = parseInt(e.target.value, 10);
     if (value > 0 && value <= totalPages) {
-      onPageChange(value);
+      dispatch(setCurrentPage(value));
     }
   };
 
