@@ -3,10 +3,11 @@ import { Suspense, lazy } from 'react';
 import { Provider } from 'react-redux';
 import store from './store';
 import { ErrorBoundary } from 'react-error-boundary';
-import { ErrorFallback } from './components/ErrorFallback';
+import ErrorFallback from './components/ErrorFallback';
 
 const PostEngagementManager = lazy(() => import('./pages/PostEngagementManager'));
 const PostEngagementBuilder = lazy(() => import('./pages/PostEngagementBuilder'));
+const NotFound = lazy(() => import('./pages/NotFound'));
 
 const router = createBrowserRouter([
   {
@@ -26,6 +27,14 @@ const router = createBrowserRouter([
     element: (
       <Suspense fallback={null}>
         <PostEngagementBuilder />
+      </Suspense>
+    ),
+  },
+  {
+    path: '*',
+    element: (
+      <Suspense fallback={null}>
+        <NotFound />
       </Suspense>
     ),
   },

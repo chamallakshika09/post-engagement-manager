@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 
-export const ErrorFallback = () => {
+const ErrorFallback = () => {
   const navigate = useNavigate();
 
   return (
@@ -18,3 +18,5 @@ export const ErrorFallback = () => {
     </div>
   );
 };
+
+export default ErrorFallback;
