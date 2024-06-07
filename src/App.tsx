@@ -2,6 +2,8 @@ import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom'
 import { Suspense, lazy } from 'react';
 import { Provider } from 'react-redux';
 import store from './store';
+import { ErrorBoundary } from 'react-error-boundary';
+import { ErrorFallback } from './components/ErrorFallback';
 
 const PostEngagementManager = lazy(() => import('./pages/PostEngagementManager'));
 const PostEngagementBuilder = lazy(() => import('./pages/PostEngagementBuilder'));
@@ -32,7 +34,9 @@ const router = createBrowserRouter([
 const App = () => {
   return (
     <Provider store={store}>
-      <RouterProvider router={router} />
+      <ErrorBoundary FallbackComponent={ErrorFallback}>
+        <RouterProvider router={router} />
+      </ErrorBoundary>
     </Provider>
   );
 };

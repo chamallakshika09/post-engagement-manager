@@ -1,6 +1,6 @@
 import { Post } from '../types/data';
 
-export const posts: Post[] = [
+export const initialPosts: Post[] = [
   { key: '001', name: 'Post 1', platform: 'instagram', engaged: '36 / 20', acquired: 82, conversion: '14%' },
   { key: '002', name: 'Post 2', platform: 'instagram', engaged: '56 / 18', acquired: 65, conversion: '58%' },
   { key: '003', name: 'Post 3', platform: 'messenger', engaged: '34 / 29', acquired: 62, conversion: '4%' },

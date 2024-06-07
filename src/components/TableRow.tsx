@@ -6,6 +6,9 @@ import messengerImage from '../assets/img/messenger.png';
 import { DropdownListItem } from '../types/ui';
 import DropdownList from './DropdownList';
 import Modal from './Modal';
+import { removePost, selectSelectedPosts, setSelectedPosts, updatePost } from '../store/postsSlice';
+import { useAppDispatch } from '../store';
+import { useSelector } from 'react-redux';
 
 const imageMap: { [key: string]: string } = {
   instagram: instagramImage,
@@ -14,23 +17,19 @@ const imageMap: { [key: string]: string } = {
 
 const TableRow = ({
   post,
-  onRename,
-  onDelete,
-  isSelected,
-  onSelect,
   direction = 'dropdown-end',
 }: {
   post: Post;
-  onRename: (key: string, newName: string) => void;
-  onDelete: (key: string) => void;
-  isSelected: boolean;
-  onSelect: (key: string, isSelected: boolean) => void;
   direction?: 'dropdown-end' | 'dropdown-top';
 }) => {
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalType, setModalType] = useState<'rename' | 'delete' | null>(null);
   const [newName, setNewName] = useState(post.name);
+
+  const selectedPosts = useSelector(selectSelectedPosts);
 
   const handleEdit = () => {
     navigate(`/post-engagement/${post.key}`);
@@ -47,18 +46,28 @@ const TableRow = ({
   };
 
   const confirmRename = () => {
-    onRename(post.key, newName);
+    dispatch(updatePost({ ...post, name: newName }));
     setIsModalOpen(false);
   };
 
   const confirmDelete = () => {
-    onDelete(post.key);
+    dispatch(removePost(post.key));
     setIsModalOpen(false);
   };
 
   const closeModal = () => {
     setIsModalOpen(false);
     setModalType(null);
+  };
+
+  const handleRowSelect = (key: string, isSelected: boolean) => {
+    const newSelectedPosts = new Set([...selectedPosts]);
+    if (isSelected) {
+      newSelectedPosts.add(key);
+    } else {
+      newSelectedPosts.delete(key);
+    }
+    dispatch(setSelectedPosts(newSelectedPosts));
   };
 
   const menuItems: DropdownListItem[] = [
@@ -75,8 +84,8 @@ const TableRow = ({
             <input
               type="checkbox"
               className="checkbox checkbox-sm"
-              checked={isSelected}
-              onChange={(e) => onSelect(post.key, e.target.checked)}
+              checked={selectedPosts.has(post.key)}
+              onChange={(e) => handleRowSelect(post.key, e.target.checked)}
             />
           </div>
         </td>

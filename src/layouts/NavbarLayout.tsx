@@ -7,7 +7,11 @@ const NavbarLayout = ({ children }: { children: ReactNode }) => {
       <div className="navbar fixed bg-base-100 z-20 border-b border-b-base-300" />
       <div className="drawer lg:drawer-open">
         <input type="checkbox" className="drawer-toggle" readOnly={true} />
-        {children}
+        <div className="drawer-content">
+          <div className="pt-24">
+            <div className="grid grid-cols-1 gap-0 lg:grid-cols-9">{children}</div>
+          </div>
+        </div>
         <Drawer />
       </div>
     </div>

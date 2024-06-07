@@ -1,17 +1,33 @@
 import { Post } from '../types/data';
 import DownArrowIcon from '../assets/icons/DownArrow.icon';
+import { useAppDispatch } from '../store';
+import { useSelector } from 'react-redux';
+import { selectSelectedPosts, setSelectedPosts } from '../store/postsSlice';
 
 const TableHeader = ({
   onSort,
   sortConfig,
-  allSelected,
-  onSelectAll,
+  paginatedPosts,
 }: {
   onSort: (key: keyof Post) => void;
   sortConfig: { key: keyof Post; direction: 'ascending' | 'descending' } | null;
-  allSelected: boolean;
-  onSelectAll: (isSelected: boolean) => void;
+  paginatedPosts: Post[];
 }) => {
+  const dispatch = useAppDispatch();
+
+  const selectedPosts = useSelector(selectSelectedPosts);
+
+  const handleSelectAll = (isSelected: boolean) => {
+    if (isSelected) {
+      const newSelectedPosts = new Set(paginatedPosts.map((post) => post.key));
+      dispatch(setSelectedPosts(new Set([...selectedPosts, ...newSelectedPosts])));
+    } else {
+      const newSelectedPosts = new Set([...selectedPosts]);
+      paginatedPosts.forEach((post) => newSelectedPosts.delete(post.key));
+      dispatch(setSelectedPosts(newSelectedPosts));
+    }
+  };
+
   return (
     <thead>
       <tr>
@@ -20,8 +36,8 @@ const TableHeader = ({
             <input
               type="checkbox"
               className="checkbox checkbox-sm"
-              checked={allSelected}
-              onChange={(e) => onSelectAll(e.target.checked)}
+              checked={paginatedPosts.every((post) => selectedPosts.has(post.key))}
+              onChange={(e) => handleSelectAll(e.target.checked)}
             />
           </div>
         </th>
