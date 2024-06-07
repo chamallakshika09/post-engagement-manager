@@ -8,9 +8,7 @@ const NavbarLayout = ({ children }: { children: ReactNode }) => {
       <div className="drawer lg:drawer-open">
         <input type="checkbox" className="drawer-toggle" readOnly={true} />
         <div className="drawer-content">
-          <div className="pt-24">
-            <div className="grid grid-cols-1 gap-0 lg:grid-cols-9">{children}</div>
-          </div>
+          <div className="pt-24">{children}</div>
         </div>
         <Drawer />
       </div>

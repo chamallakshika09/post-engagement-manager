@@ -1,3 +1,26 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:where(.child\:\!rounded-none) > :where(:not(.not-child)) {
+  border-radius: 0 !important;
+}
+
+:where(.child\:\!border-b) > :where(:not(.not-child)) {
+  border-bottom-width: 1px !important;
+}
+
+:where(.child\:\!text-sm) > :where(:not(.not-child)) {
+  font-size: 0.875rem !important;
+  line-height: 1.25rem !important;
+}
+
+.sub-header {
+  border-bottom-width: 1px;
+  font-weight: 600;
+  padding-bottom: 0.25rem;
+}
+
+.label {
+  padding-left: 0;
+}

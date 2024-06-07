@@ -72,17 +72,19 @@ const PostEngagementManager = () => {
 
   return (
     <NavbarLayout>
-      <Sidebar />
-      <div className="lg:col-span-7">
-        <div className="px-6">
-          <div className="mb-2 flex flex-row items-end gap-2">
-            <div className="grow truncate">
-              <h4 className="truncate text-xl">Post Engagements</h4>
+      <div className="grid grid-cols-1 gap-0 lg:grid-cols-9">
+        <Sidebar />
+        <div className="lg:col-span-7">
+          <div className="px-6">
+            <div className="mb-2 flex flex-row items-end gap-2">
+              <div className="grow truncate">
+                <h4 className="truncate text-xl">Post Engagements</h4>
+              </div>
+              <SearchField />
+              <BulkActionsMenu />
             </div>
-            <SearchField />
-            <BulkActionsMenu />
+            <PostTable />
           </div>
-          <PostTable />
         </div>
       </div>
 
