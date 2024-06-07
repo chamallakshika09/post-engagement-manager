@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import BulkActionsMenu from '../components/BulkActionsMenu';
 import SearchField from '../components/SearchField';
 import Sidebar from '../components/Sidebar';
@@ -6,29 +6,46 @@ import PostTable from '../components/PostTable';
 import Modal from '../components/Modal';
 import NavbarLayout from '../layouts/NavbarLayout';
 import { useAppDispatch, useAppSelector } from '../store';
-import { deleteSelectedPosts, fetchPosts, selectError, selectSelectedPosts, selectStatus } from '../store/postsSlice';
+import {
+  closeModal,
+  deleteSelectedPosts,
+  fetchPosts,
+  removePost,
+  selectCurrentPost,
+  selectError,
+  selectModalType,
+  selectNewName,
+  selectSelectedPosts,
+  selectStatus,
+  setNewName,
+  updatePost,
+} from '../store/postsSlice';
 import ErrorMessage from '../components/ErrorMessage';
 import Loader from '../components/Loader';
 
 const PostEngagementManager = () => {
   const dispatch = useAppDispatch();
 
-  const [isBulkDeleteModalOpen, setIsBulkDeleteModalOpen] = useState(false);
-
   const selectedPosts = useAppSelector(selectSelectedPosts);
   const status = useAppSelector(selectStatus);
   const error = useAppSelector(selectError);
+  const modalType = useAppSelector(selectModalType);
+  const currentPost = useAppSelector(selectCurrentPost);
+  const newName = useAppSelector(selectNewName);
 
-  const handleBulkDelete = () => {
-    dispatch(deleteSelectedPosts());
+  const closeModalHandler = () => {
+    dispatch(closeModal());
   };
 
-  const openBulkDeleteModal = () => {
-    setIsBulkDeleteModalOpen(true);
-  };
-
-  const closeBulkDeleteModal = () => {
-    setIsBulkDeleteModalOpen(false);
+  const confirmAction = () => {
+    if (modalType === 'rename' && currentPost) {
+      dispatch(updatePost({ ...currentPost, name: newName }));
+    } else if (modalType === 'delete' && currentPost) {
+      dispatch(removePost(currentPost.key));
+    } else if (modalType === 'bulkDelete') {
+      dispatch(deleteSelectedPosts());
+    }
+    dispatch(closeModal());
   };
 
   useEffect(() => {
@@ -63,19 +80,37 @@ const PostEngagementManager = () => {
               <h4 className="truncate text-xl">Post Engagements</h4>
             </div>
             <SearchField />
-            <BulkActionsMenu onBulkDelete={openBulkDeleteModal} />
+            <BulkActionsMenu />
           </div>
           <PostTable />
         </div>
       </div>
 
       <Modal
-        isOpen={isBulkDeleteModalOpen}
-        onClose={closeBulkDeleteModal}
-        onConfirm={handleBulkDelete}
-        title="Are you sure you want to delete selected posts?"
+        isOpen={modalType !== null}
+        onClose={closeModalHandler}
+        onConfirm={confirmAction}
+        title={
+          modalType === 'rename'
+            ? 'Please enter new name'
+            : modalType === 'delete'
+              ? 'Are you sure you want to delete this post?'
+              : 'Are you sure you want to delete selected posts?'
+        }
       >
-        <p>Deleting {selectedPosts.size} posts.</p>
+        {modalType === 'rename' ? (
+          <input
+            type="text"
+            value={newName}
+            onChange={(e) => dispatch(setNewName(e.target.value))}
+            className="input input-bordered w-full"
+            placeholder="Enter text here"
+          />
+        ) : (
+          <p>
+            {modalType === 'delete' ? `Deleting post: ${currentPost?.name}` : `Deleting ${selectedPosts.length} posts.`}
+          </p>
+        )}
       </Modal>
     </NavbarLayout>
   );

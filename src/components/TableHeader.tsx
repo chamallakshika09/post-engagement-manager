@@ -19,11 +19,11 @@ const TableHeader = () => {
   const handleSelectAll = (isSelected: boolean) => {
     if (isSelected) {
       const newSelectedPosts = new Set(paginatedPosts.map((post) => post.key));
-      dispatch(setSelectedPosts(new Set([...selectedPosts, ...newSelectedPosts])));
+      dispatch(setSelectedPosts([...new Set([...selectedPosts, ...newSelectedPosts])]));
     } else {
       const newSelectedPosts = new Set([...selectedPosts]);
       paginatedPosts.forEach((post) => newSelectedPosts.delete(post.key));
-      dispatch(setSelectedPosts(newSelectedPosts));
+      dispatch(setSelectedPosts([...newSelectedPosts]));
     }
   };
 
@@ -49,7 +49,7 @@ const TableHeader = () => {
             <input
               type="checkbox"
               className="checkbox checkbox-sm"
-              checked={paginatedPosts.every((post) => selectedPosts.has(post.key))}
+              checked={paginatedPosts.every((post) => selectedPosts.includes(post.key))}
               onChange={(e) => handleSelectAll(e.target.checked)}
             />
           </div>

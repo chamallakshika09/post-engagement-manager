@@ -2,11 +2,12 @@ import TableHeader from './TableHeader';
 import TableRow from './TableRow';
 import Pagination from './Pagination';
 import { useAppSelector } from '../store';
-import { selectPaginatedPosts, selectItemsPerPage } from '../store/postsSlice';
+import { selectPaginatedPosts, selectItemsPerPage, selectSortedPosts } from '../store/postsSlice';
 
 const PostTable = () => {
   const paginatedPosts = useAppSelector(selectPaginatedPosts);
   const itemsPerPage = useAppSelector(selectItemsPerPage);
+  const sortedPosts = useAppSelector(selectSortedPosts);
 
   return (
     <>
@@ -24,7 +25,7 @@ const PostTable = () => {
           </tbody>
         </table>
       </div>
-      <Pagination totalPages={Math.ceil(paginatedPosts.length / itemsPerPage)} />
+      <Pagination totalPages={Math.ceil(sortedPosts.length / itemsPerPage)} />
     </>
   );
 };

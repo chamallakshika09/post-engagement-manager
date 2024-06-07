@@ -14,22 +14,28 @@ interface PostsState {
   posts: Post[];
   status: 'idle' | 'loading' | 'succeeded' | 'failed';
   error: string | null;
-  selectedPosts: Set<string>;
+  selectedPosts: string[];
   searchQuery: string;
   sortConfig: { key: keyof Post; direction: 'ascending' | 'descending' } | null;
   currentPage: number;
   itemsPerPage: number;
+  modalType: 'rename' | 'delete' | 'bulkDelete' | null;
+  currentPost: Post | null;
+  newName: string;
 }
 
 const initialState: PostsState = {
   posts: [],
   status: 'idle',
   error: null,
-  selectedPosts: new Set(),
+  selectedPosts: [],
   searchQuery: '',
   sortConfig: null,
   currentPage: 1,
   itemsPerPage: 10,
+  modalType: null,
+  currentPost: null,
+  newName: '',
 };
 
 const postsSlice = createSlice({
@@ -48,12 +54,12 @@ const postsSlice = createSlice({
         state.posts[index] = action.payload;
       }
     },
-    setSelectedPosts: (state, action: PayloadAction<Set<string>>) => {
+    setSelectedPosts: (state, action: PayloadAction<string[]>) => {
       state.selectedPosts = action.payload;
     },
     deleteSelectedPosts: (state) => {
-      state.posts = state.posts.filter((post) => !state.selectedPosts.has(post.key));
-      state.selectedPosts = new Set();
+      state.posts = state.posts.filter((post) => !state.selectedPosts.includes(post.key));
+      state.selectedPosts = [];
     },
     setSearchQuery: (state, action: PayloadAction<string>) => {
       state.searchQuery = action.payload;
@@ -69,6 +75,22 @@ const postsSlice = createSlice({
     },
     setItemsPerPage: (state, action: PayloadAction<number>) => {
       state.itemsPerPage = action.payload;
+    },
+    openModal: (state, action: PayloadAction<{ modalType: 'rename' | 'delete' | 'bulkDelete'; post?: Post }>) => {
+      const { modalType, post } = action.payload;
+      state.modalType = modalType;
+      if (post) {
+        state.currentPost = post;
+        state.newName = post.name;
+      }
+    },
+    closeModal: (state) => {
+      state.modalType = null;
+      state.currentPost = null;
+      state.newName = '';
+    },
+    setNewName: (state, action: PayloadAction<string>) => {
+      state.newName = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -94,6 +116,9 @@ const postsSlice = createSlice({
     selectSortConfig: (sliceState) => sliceState.sortConfig,
     selectCurrentPage: (sliceState) => sliceState.currentPage,
     selectItemsPerPage: (sliceState) => sliceState.itemsPerPage,
+    selectModalType: (sliceState) => sliceState.modalType,
+    selectCurrentPost: (sliceState) => sliceState.currentPost,
+    selectNewName: (sliceState) => sliceState.newName,
   },
 });
 
@@ -107,6 +132,9 @@ export const {
   setSortConfig,
   setCurrentPage,
   setItemsPerPage,
+  openModal,
+  closeModal,
+  setNewName,
 } = postsSlice.actions;
 
 export const {
@@ -118,6 +146,9 @@ export const {
   selectSortConfig,
   selectCurrentPage,
   selectItemsPerPage,
+  selectModalType,
+  selectCurrentPost,
+  selectNewName,
 } = postsSlice.selectors;
 
 export default postsSlice.reducer;
