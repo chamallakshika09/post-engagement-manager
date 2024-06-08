@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import BulkActionsMenu from '../components/BulkActionsMenu';
 import SearchField from '../components/SearchField';
 import Sidebar from '../components/Sidebar';
-import PostTable from '../components/PostTable';
+import Table from '../components/Table';
 import Modal from '../components/Modal';
 import NavbarLayout from '../layouts/NavbarLayout';
 import { useAppDispatch, useAppSelector } from '../store';
@@ -10,21 +10,43 @@ import {
   closeModal,
   deleteSelectedPosts,
   fetchPosts,
+  openModal,
   removePost,
+  selectCurrentPage,
   selectCurrentPost,
   selectError,
+  selectItemsPerPage,
   selectModalType,
   selectNewName,
+  selectPaginatedPosts,
   selectSelectedPosts,
+  selectSortConfig,
+  selectSortedPosts,
   selectStatus,
+  setCurrentPage,
   setNewName,
+  setSearchQuery,
+  setSelectedPosts,
+  setSortConfig,
   updatePost,
 } from '../store/postsSlice';
 import ErrorMessage from '../components/ErrorMessage';
 import Loader from '../components/Loader';
+import { ColumnConfig, DropdownListItem } from '../types/ui';
+import { useNavigate } from 'react-router-dom';
+import { Post } from '../types/data';
+
+const columns: ColumnConfig<Post>[] = [
+  { key: 'platform', label: '', width: '20px' },
+  { key: 'name', label: 'Name', sortable: true, width: '150px' },
+  { key: 'engaged', label: 'Engaged / Unique', width: '150px' },
+  { key: 'acquired', label: 'Acquired', sortable: true, width: '150px' },
+  { key: 'conversion', label: 'Conversion', sortable: true, width: '150px' },
+];
 
 const PostEngagementManager = () => {
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
 
   const selectedPosts = useAppSelector(selectSelectedPosts);
   const status = useAppSelector(selectStatus);
@@ -32,6 +54,51 @@ const PostEngagementManager = () => {
   const modalType = useAppSelector(selectModalType);
   const currentPost = useAppSelector(selectCurrentPost);
   const newName = useAppSelector(selectNewName);
+  const paginatedPosts = useAppSelector(selectPaginatedPosts);
+  const itemsPerPage = useAppSelector(selectItemsPerPage);
+  const sortedPosts = useAppSelector(selectSortedPosts);
+  const sortConfig = useAppSelector(selectSortConfig);
+  const currentPage = useAppSelector(selectCurrentPage);
+
+  const updateSelectedPosts = (newSelectedPosts: string[]) => {
+    dispatch(setSelectedPosts(newSelectedPosts));
+  };
+
+  const updateSortConfig = (newSortConfig: { key: keyof Post; direction: 'ascending' | 'descending' } | null) => {
+    dispatch(setSortConfig(newSortConfig));
+  };
+
+  const updateCurrentPage = (page: number) => {
+    dispatch(setCurrentPage(page));
+  };
+
+  const updateSearchQuery = (searchQuery: string) => {
+    dispatch(setSearchQuery(searchQuery));
+  };
+
+  const handleEdit = (post?: Post) => {
+    if (post) {
+      navigate(`/post-engagement/${post.key}`);
+    }
+  };
+
+  const handleRename = (post?: Post) => {
+    if (post) {
+      dispatch(openModal({ modalType: 'rename', post }));
+    }
+  };
+
+  const handleDelete = (post?: Post) => {
+    if (post) {
+      dispatch(openModal({ modalType: 'delete', post }));
+    }
+  };
+
+  const menuItems: DropdownListItem<Post>[] = [
+    { key: 'edit', label: 'Edit', onClick: handleEdit },
+    { key: 'rename', label: 'Rename', onClick: handleRename },
+    { key: 'delete', label: 'Delete', onClick: handleDelete },
+  ];
 
   const closeModalHandler = () => {
     dispatch(closeModal());
@@ -53,6 +120,12 @@ const PostEngagementManager = () => {
       dispatch(fetchPosts());
     }
   }, [status, dispatch]);
+
+  const handleBulkDelete = () => {
+    dispatch(openModal({ modalType: 'bulkDelete' }));
+  };
+
+  const bulkMenuItems: DropdownListItem[] = [{ key: 'delete', label: 'Delete', onClick: handleBulkDelete }];
 
   if (status === 'loading') {
     return (
@@ -80,10 +153,22 @@ const PostEngagementManager = () => {
               <div className="grow truncate">
                 <h4 className="truncate text-xl">Post Engagements</h4>
               </div>
-              <SearchField />
-              <BulkActionsMenu />
+              <SearchField updateSearchQuery={updateSearchQuery} />
+              <BulkActionsMenu bulkMenuItems={bulkMenuItems} />
             </div>
-            <PostTable />
+            <Table
+              columns={columns}
+              currentPage={currentPage}
+              itemsPerPage={itemsPerPage}
+              menuItems={menuItems}
+              paginatedItems={paginatedPosts}
+              selectedItems={selectedPosts}
+              sortConfig={sortConfig}
+              sortedItems={sortedPosts}
+              updateCurrentPage={updateCurrentPage}
+              updateSelectedItems={updateSelectedPosts}
+              updateSortConfig={updateSortConfig}
+            />
           </div>
         </div>
       </div>

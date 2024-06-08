@@ -1,16 +1,13 @@
 import { ChangeEvent, useState } from 'react';
 import SearchIcon from '../assets/icons/Search.icon';
-import { useAppDispatch } from '../store';
-import { setSearchQuery } from '../store/postsSlice';
 
-const SearchField = () => {
-  const dispatch = useAppDispatch();
+const SearchField = ({ updateSearchQuery }: { updateSearchQuery: (query: string) => void }) => {
   const [query, setQuery] = useState('');
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setQuery(value);
-    dispatch(setSearchQuery(value));
+    updateSearchQuery(value);
   };
 
   return (

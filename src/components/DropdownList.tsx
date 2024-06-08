@@ -3,20 +3,22 @@ import { DropdownListItem } from '../types/ui';
 import DownArrowIcon from '../assets/icons/DownArrow.icon';
 import useOutsideClick from '../hooks/useOutsideClick';
 
-const DropdownList = ({
-  items,
+const DropdownList = <T,>({
+  menuItems,
   size = 'xs',
   additionalClasses = '',
   icon,
   buttonText,
   direction = 'dropdown-end',
+  item,
 }: {
-  items: DropdownListItem[];
+  menuItems: DropdownListItem<T>[];
   buttonText: string;
   size?: 'xs' | 'sm';
   additionalClasses?: string;
   icon?: boolean;
   direction?: 'dropdown-end' | 'dropdown-top';
+  item?: T;
 }) => {
   const menuSizeClass = size === 'xs' ? 'menu-xs' : 'menu-sm';
   const buttonSizeClass = size === 'xs' ? 'btn-xs' : 'btn-sm';
@@ -37,9 +39,9 @@ const DropdownList = ({
       <ul
         className={`menu dropdown-content p-2 bg-base-100 rounded-box shadow z-50 ${menuSizeClass} ${additionalClasses}`}
       >
-        {items.map((item) => (
-          <li key={item.key}>
-            <button onClick={item.onClick}>{item.label}</button>
+        {menuItems.map((menuItem) => (
+          <li key={menuItem.key}>
+            <button onClick={() => menuItem.onClick(item)}>{menuItem.label}</button>
           </li>
         ))}
       </ul>

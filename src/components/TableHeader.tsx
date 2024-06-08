@@ -1,86 +1,84 @@
-import { Post } from '../types/data';
 import DownArrowIcon from '../assets/icons/DownArrow.icon';
-import { useAppDispatch, useAppSelector } from '../store';
-import {
-  selectPaginatedPosts,
-  selectSelectedPosts,
-  selectSortConfig,
-  setSelectedPosts,
-  setSortConfig,
-} from '../store/postsSlice';
+import { ColumnConfig } from '../types/ui';
 
-const TableHeader = () => {
-  const dispatch = useAppDispatch();
-
-  const selectedPosts = useAppSelector(selectSelectedPosts);
-  const sortConfig = useAppSelector(selectSortConfig);
-  const paginatedPosts = useAppSelector(selectPaginatedPosts);
-
+const TableHeader = <T extends { key: string }>({
+  columns,
+  paginatedItems,
+  selectedItems,
+  sortConfig,
+  updateSelectedItems,
+  updateSortConfig,
+  selectable = false,
+  actionsColumn = false,
+}: {
+  columns: ColumnConfig<T>[];
+  paginatedItems: T[];
+  selectedItems: string[];
+  sortConfig: { key: keyof T; direction: 'ascending' | 'descending' } | null;
+  updateSelectedItems: (selectedItems: string[]) => void;
+  updateSortConfig: (sortConfig: { key: keyof T; direction: 'ascending' | 'descending' } | null) => void;
+  selectable?: boolean;
+  actionsColumn?: boolean;
+}) => {
   const handleSelectAll = (isSelected: boolean) => {
     if (isSelected) {
-      const newSelectedPosts = new Set(paginatedPosts.map((post) => post.key));
-      dispatch(setSelectedPosts([...new Set([...selectedPosts, ...newSelectedPosts])]));
+      const newSelectedItems = new Set(paginatedItems.map((item) => item.key));
+      updateSelectedItems([...new Set([...selectedItems, ...newSelectedItems])]);
     } else {
-      const newSelectedPosts = new Set([...selectedPosts]);
-      paginatedPosts.forEach((post) => newSelectedPosts.delete(post.key));
-      dispatch(setSelectedPosts([...newSelectedPosts]));
+      const newSelectedItems = new Set([...selectedItems]);
+      paginatedItems.forEach((item) => newSelectedItems.delete(item.key));
+      updateSelectedItems([...newSelectedItems]);
     }
   };
 
-  const handleSort = (key: keyof Post) => {
+  const handleSort = (key: keyof T) => {
     if (sortConfig && sortConfig.key === key) {
       if (sortConfig.direction === 'ascending') {
-        dispatch(setSortConfig({ key, direction: 'descending' }));
+        updateSortConfig({ key, direction: 'descending' });
       } else if (sortConfig.direction === 'descending') {
-        dispatch(setSortConfig(null));
+        updateSortConfig(null);
       } else {
-        dispatch(setSortConfig({ key, direction: 'ascending' }));
+        updateSortConfig({ key, direction: 'ascending' });
       }
     } else {
-      dispatch(setSortConfig({ key, direction: 'ascending' }));
+      updateSortConfig({ key, direction: 'ascending' });
     }
   };
 
   return (
     <thead>
       <tr>
-        <th style={{ width: '20px' }}>
-          <div className="px-1">
-            <input
-              type="checkbox"
-              className="checkbox checkbox-sm"
-              checked={paginatedPosts.every((post) => selectedPosts.includes(post.key))}
-              onChange={(e) => handleSelectAll(e.target.checked)}
-            />
-          </div>
-        </th>
-        <th style={{ width: '20px' }}>
-          <div className="px-1"></div>
-        </th>
-        <th style={{ width: '150px' }} onClick={() => handleSort('name')}>
-          <div className="cursor-pointer select-none flex items-center">
-            Name
-            {sortConfig?.key === 'name' && <DownArrowIcon direction={sortConfig.direction} />}
-          </div>
-        </th>
-        <th style={{ width: '150px' }}>
-          <div className="px-1">Engaged / Unique</div>
-        </th>
-        <th style={{ width: '150px' }} onClick={() => handleSort('acquired')}>
-          <div className="cursor-pointer select-none flex items-center">
-            Acquired
-            {sortConfig?.key === 'acquired' && <DownArrowIcon direction={sortConfig.direction} />}
-          </div>
-        </th>
-        <th style={{ width: '150px' }} onClick={() => handleSort('conversion')}>
-          <div className="cursor-pointer select-none flex items-center">
-            Conversion
-            {sortConfig?.key === 'conversion' && <DownArrowIcon direction={sortConfig.direction} />}
-          </div>
-        </th>
-        <th style={{ width: '20px' }}>
-          <div className="px-1">Action</div>
-        </th>
+        {selectable && (
+          <th style={{ width: '20px' }}>
+            <div className="px-1">
+              <input
+                type="checkbox"
+                className="checkbox checkbox-sm"
+                checked={paginatedItems.every((item) => selectedItems.includes(item.key))}
+                onChange={(e) => handleSelectAll(e.target.checked)}
+              />
+            </div>
+          </th>
+        )}
+
+        {columns.map((column) => (
+          <th
+            key={column.key as string}
+            style={{ width: column.width }}
+            onClick={column.sortable ? () => handleSort(column.key) : () => {}}
+          >
+            <div className={column.sortable ? 'cursor-pointer select-none flex items-center' : 'px-1'}>
+              {column.label}
+              {column.sortable && sortConfig?.key === column.key && <DownArrowIcon direction={sortConfig.direction} />}
+            </div>
+          </th>
+        ))}
+
+        {actionsColumn && (
+          <th style={{ width: '20px' }}>
+            <div className="px-1">Action</div>
+          </th>
+        )}
       </tr>
     </thead>
   );
