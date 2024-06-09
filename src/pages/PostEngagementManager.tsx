@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import BulkActionsMenu from '../components/BulkActionsMenu';
 import SearchField from '../components/SearchField';
 import Sidebar from '../components/Sidebar';
@@ -14,7 +14,7 @@ import {
   removePost,
   selectCurrentPage,
   selectCurrentPost,
-  selectError,
+  selectFetchPostsError,
   selectItemsPerPage,
   selectModalType,
   selectNewName,
@@ -22,19 +22,22 @@ import {
   selectSelectedPosts,
   selectSortConfig,
   selectSortedPosts,
-  selectStatus,
+  selectFetchPostsStatus,
   setCurrentPage,
   setNewName,
   setSearchQuery,
   setSelectedPosts,
   setSortConfig,
   updatePost,
+  selectUpdatePostStatus,
+  selectUpdatePostError,
 } from '../store/postsSlice';
 import ErrorMessage from '../components/ErrorMessage';
 import Loader from '../components/Loader';
 import { ColumnConfig, DropdownListItem } from '../types/ui';
 import { useNavigate } from 'react-router-dom';
 import { Post } from '../types/data';
+import Notification from '../components/Notification';
 
 const columns: ColumnConfig<Post>[] = [
   { key: 'platform', label: '', width: '20px' },
@@ -49,8 +52,8 @@ const PostEngagementManager = () => {
   const navigate = useNavigate();
 
   const selectedPosts = useAppSelector(selectSelectedPosts);
-  const status = useAppSelector(selectStatus);
-  const error = useAppSelector(selectError);
+  const status = useAppSelector(selectFetchPostsStatus);
+  const error = useAppSelector(selectFetchPostsError);
   const modalType = useAppSelector(selectModalType);
   const currentPost = useAppSelector(selectCurrentPost);
   const newName = useAppSelector(selectNewName);
@@ -59,6 +62,10 @@ const PostEngagementManager = () => {
   const sortedPosts = useAppSelector(selectSortedPosts);
   const sortConfig = useAppSelector(selectSortConfig);
   const currentPage = useAppSelector(selectCurrentPage);
+  const updateStatus = useAppSelector(selectUpdatePostStatus);
+  const updateError = useAppSelector(selectUpdatePostError);
+
+  const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
   const updateSelectedPosts = (newSelectedPosts: string[]) => {
     dispatch(setSelectedPosts(newSelectedPosts));
@@ -121,6 +128,24 @@ const PostEngagementManager = () => {
     }
   }, [status, dispatch]);
 
+  useEffect(() => {
+    if (updateStatus === 'succeeded') {
+      setNotification({ message: 'Post updated successfully!', type: 'success' });
+    } else if (updateStatus === 'failed') {
+      setNotification({ message: updateError ?? 'Failed to update post', type: 'error' });
+    }
+  }, [updateStatus, updateError]);
+
+  useEffect(() => {
+    if (notification) {
+      const timer = setTimeout(() => {
+        setNotification(null);
+      }, 5000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [notification]);
+
   const handleBulkDelete = () => {
     dispatch(openModal({ modalType: 'bulkDelete' }));
   };
@@ -145,6 +170,7 @@ const PostEngagementManager = () => {
 
   return (
     <NavbarLayout>
+      {notification && <Notification message={notification.message} type={notification.type} />}
       <div className="grid grid-cols-1 gap-0 lg:grid-cols-9">
         <Sidebar />
         <div className="lg:col-span-7">

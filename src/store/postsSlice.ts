@@ -10,10 +10,31 @@ export const fetchPosts = createAsyncThunk('posts/fetchPosts', async () => {
   );
 });
 
+export const fetchPost = createAsyncThunk('posts/fetchPost', async (id: string) => {
+  return new Promise<Post | null>((resolve) =>
+    setTimeout(() => {
+      const post = initialPosts.find((post) => post.key === id);
+      if (!post) {
+        resolve(null);
+        return;
+      }
+      resolve(post);
+    }, 1000)
+  );
+});
+
+export const updatePost = createAsyncThunk('posts/updatePost', async (post: Post) => {
+  return new Promise<Post>((resolve) =>
+    setTimeout(() => {
+      resolve(post);
+    }, 1000)
+  );
+});
+
 interface PostsState {
   posts: Post[];
-  status: 'idle' | 'loading' | 'succeeded' | 'failed';
-  error: string | null;
+  fetchPostsStatus: 'idle' | 'loading' | 'succeeded' | 'failed';
+  fetchPostsError: string | null;
   selectedPosts: string[];
   searchQuery: string;
   sortConfig: { key: keyof Post; direction: 'ascending' | 'descending' } | null;
@@ -22,12 +43,16 @@ interface PostsState {
   modalType: 'rename' | 'delete' | 'bulkDelete' | null;
   currentPost: Post | null;
   newName: string;
+  fetchPostStatus: 'idle' | 'loading' | 'succeeded' | 'failed';
+  fetchPostError: string | null;
+  updatePostStatus: 'idle' | 'loading' | 'succeeded' | 'failed';
+  updatePostError: string | null;
 }
 
 const initialState: PostsState = {
   posts: [],
-  status: 'idle',
-  error: null,
+  fetchPostsStatus: 'idle',
+  fetchPostsError: null,
   selectedPosts: [],
   searchQuery: '',
   sortConfig: null,
@@ -36,6 +61,10 @@ const initialState: PostsState = {
   modalType: null,
   currentPost: null,
   newName: '',
+  fetchPostStatus: 'idle',
+  fetchPostError: null,
+  updatePostStatus: 'idle',
+  updatePostError: null,
 };
 
 const postsSlice = createSlice({
@@ -47,12 +76,6 @@ const postsSlice = createSlice({
     },
     removePost: (state, action: PayloadAction<string>) => {
       state.posts = state.posts.filter((post) => post.key !== action.payload);
-    },
-    updatePost: (state, action: PayloadAction<Post>) => {
-      const index = state.posts.findIndex((post) => post.key === action.payload.key);
-      if (index !== -1) {
-        state.posts[index] = action.payload;
-      }
     },
     setSelectedPosts: (state, action: PayloadAction<string[]>) => {
       state.selectedPosts = action.payload;
@@ -94,23 +117,50 @@ const postsSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    builder
-      .addCase(fetchPosts.pending, (state) => {
-        state.status = 'loading';
-      })
-      .addCase(fetchPosts.fulfilled, (state, action: PayloadAction<Post[]>) => {
-        state.status = 'succeeded';
-        state.posts = action.payload;
-      })
-      .addCase(fetchPosts.rejected, (state, action) => {
-        state.status = 'failed';
-        state.error = action.error.message ?? 'Something went wrong';
-      });
+    builder.addCase(fetchPosts.pending, (state) => {
+      state.fetchPostsStatus = 'loading';
+    });
+    builder.addCase(fetchPosts.fulfilled, (state, action: PayloadAction<Post[]>) => {
+      state.fetchPostsStatus = 'succeeded';
+      state.posts = action.payload;
+    });
+    builder.addCase(fetchPosts.rejected, (state, action) => {
+      state.fetchPostsStatus = 'failed';
+      state.fetchPostsError = action.error.message ?? 'Something went wrong';
+    });
+
+    builder.addCase(fetchPost.pending, (state) => {
+      state.fetchPostStatus = 'loading';
+    });
+    builder.addCase(fetchPost.fulfilled, (state, action: PayloadAction<Post | null>) => {
+      state.fetchPostStatus = 'succeeded';
+      state.currentPost = action.payload;
+    });
+    builder.addCase(fetchPost.rejected, (state, action) => {
+      state.fetchPostStatus = 'failed';
+      state.fetchPostError = action.error.message ?? 'Something went wrong';
+    });
+
+    builder.addCase(updatePost.pending, (state) => {
+      state.updatePostStatus = 'loading';
+    });
+    builder.addCase(updatePost.fulfilled, (state, action: PayloadAction<Post>) => {
+      state.updatePostStatus = 'succeeded';
+      const index = state.posts.findIndex((post) => post.key === action.payload.key);
+      if (index !== -1) {
+        state.posts[index] = action.payload;
+      }
+      state.currentPost = action.payload;
+    });
+    builder.addCase(updatePost.rejected, (state, action) => {
+      state.updatePostStatus = 'failed';
+      state.updatePostError = action.error.message ?? 'Something went wrong';
+    });
   },
   selectors: {
     selectPosts: (sliceState) => sliceState.posts,
-    selectStatus: (sliceState) => sliceState.status,
-    selectError: (sliceState) => sliceState.error,
+    selectFetchPostsStatus: (sliceState) => sliceState.fetchPostsStatus,
+    selectFetchPostsError: (sliceState) => sliceState.fetchPostsError,
     selectSelectedPosts: (sliceState) => sliceState.selectedPosts,
     selectSearchQuery: (sliceState) => sliceState.searchQuery,
     selectSortConfig: (sliceState) => sliceState.sortConfig,
@@ -119,13 +169,16 @@ const postsSlice = createSlice({
     selectModalType: (sliceState) => sliceState.modalType,
     selectCurrentPost: (sliceState) => sliceState.currentPost,
     selectNewName: (sliceState) => sliceState.newName,
+    selectFetchPostStatus: (sliceState) => sliceState.fetchPostStatus,
+    selectFetchPostError: (sliceState) => sliceState.fetchPostError,
+    selectUpdatePostStatus: (sliceState) => sliceState.updatePostStatus,
+    selectUpdatePostError: (sliceState) => sliceState.updatePostError,
   },
 });
 
 export const {
   addPost,
   removePost,
-  updatePost,
   deleteSelectedPosts,
   setSelectedPosts,
   setSearchQuery,
@@ -139,8 +192,8 @@ export const {
 
 export const {
   selectPosts,
-  selectStatus,
-  selectError,
+  selectFetchPostsStatus,
+  selectFetchPostsError,
   selectSelectedPosts,
   selectSearchQuery,
   selectSortConfig,
@@ -149,6 +202,10 @@ export const {
   selectModalType,
   selectCurrentPost,
   selectNewName,
+  selectFetchPostStatus,
+  selectFetchPostError,
+  selectUpdatePostStatus,
+  selectUpdatePostError,
 } = postsSlice.selectors;
 
 export default postsSlice.reducer;

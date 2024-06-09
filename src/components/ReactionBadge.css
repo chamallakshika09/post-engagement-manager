@@ -1,0 +1,53 @@
+.like-btn-like {
+  background-image: url('/img/reactions_like.png');
+  background-repeat: no-repeat;
+  background-size: 18px;
+}
+
+.like-btn-love {
+  background-image: url('/img/reactions_love.png');
+  background-repeat: no-repeat;
+  background-size: 18px;
+}
+
+.like-btn-haha {
+  background-image: url('/img/reactions_haha.png');
+  background-repeat: no-repeat;
+  background-size: 18px;
+}
+
+.like-btn-wow {
+  background-image: url('/img/reactions_wow.png');
+  background-repeat: no-repeat;
+  background-size: 18px;
+}
+
+.like-btn-sad {
+  background-image: url('/img/reactions_sad.png');
+  background-repeat: no-repeat;
+  background-size: 18px;
+}
+
+.like-btn-angry {
+  background-image: url('/img/reactions_angry.png');
+  background-repeat: no-repeat;
+  background-size: 18px;
+}
+
+.like-btn-text-like {
+  color: rgb(88, 144, 255);
+}
+
+.like-btn-text-wow,
+.like-btn-text-haha,
+.like-btn-text-sad {
+  color: rgb(240, 186, 21);
+}
+
+.like-btn-text-love {
+  color: rgb(242, 82, 104);
+}
+
+.like-btn-text-angry {
+  color: rgb(247, 113, 75);
+}

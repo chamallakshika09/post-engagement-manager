@@ -1,4 +1,4 @@
-const Breadcrumbs = () => {
+const Breadcrumbs = ({ onSave }: { onSave: () => void }) => {
   return (
     <div className="-mt-5 mb-2 flex items-center justify-between px-8">
       <div className="breadcrumbs text-lg">
@@ -13,7 +13,9 @@ const Breadcrumbs = () => {
         </ul>
       </div>
       <div>
-        <button className="btn btn-sm btn-primary">Save</button>
+        <button className="btn btn-sm btn-primary" onClick={onSave}>
+          Save
+        </button>
       </div>
     </div>
   );

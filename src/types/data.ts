@@ -5,4 +5,17 @@ export type Post = {
   engaged: string;
   acquired: number;
   conversion: string;
+  enablePrivateReply: boolean;
+  sendOncePerPost: boolean;
+  requiredReactions: string[];
+  excludeKeywords: string[];
+  triggerKeywords: string[];
+  messageType: string;
+  flow: string;
+  enableAutoLike: boolean;
+  commentType: string;
+  comments: string[];
+  message: string;
+  integrationType: string;
+  assistanceType: string;
 };
