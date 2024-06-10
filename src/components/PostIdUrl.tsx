@@ -1,10 +1,8 @@
 import { useState } from 'react';
 import ButtonedInput from './ButtonedInput';
 
-const PostIdUrl = () => {
+const PostIdUrl = ({ handleGrabPost }: { handleGrabPost: () => void }) => {
   const [postId, setPostId] = useState('');
-
-  const handleClick = () => {};
 
   return (
     <div className="flex place-content-center">
@@ -13,7 +11,7 @@ const PostIdUrl = () => {
           placeholder="Post ID / URL"
           value={postId}
           onChange={(e) => setPostId(e.target.value)}
-          onClick={handleClick}
+          onClick={handleGrabPost}
           buttonText="Grab Post"
           widthClass="w-96"
         />

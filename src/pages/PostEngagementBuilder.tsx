@@ -1,7 +1,7 @@
 import NavbarLayout from '../layouts/NavbarLayout';
 import Breadcrumbs from '../components/Breadcrumbs';
 import TabList from '../components/TabList';
-import SelectPost from '../components/PostIdUrl';
+import SelectPost from '../components/SelectPost';
 import PostIdUrl from '../components/PostIdUrl';
 import Settings from '../components/Settings';
 import AutoResponse from '../components/AutoResponse';
@@ -72,6 +72,10 @@ const PostEngagementBuilder = () => {
     }
   };
 
+  const handleGrabPost = () => {
+    setNotification({ message: 'Not Implemented', type: 'error' });
+  };
+
   if (fetchStatus === 'loading') {
     return (
       <NavbarLayout>
@@ -112,7 +116,7 @@ const PostEngagementBuilder = () => {
               <TabList
                 tabs={[
                   { label: 'Select A Post', content: <SelectPost /> },
-                  { label: 'Post ID / URL', content: <PostIdUrl /> },
+                  { label: 'Post ID / URL', content: <PostIdUrl handleGrabPost={handleGrabPost} /> },
                 ]}
                 className="basis-3/5"
                 tabListClassName="tabs h-12 bg-base-100 p-0 child:!rounded-none rounded-b-none border-b border-b-base-300 tabs-boxed tabs-lg"
