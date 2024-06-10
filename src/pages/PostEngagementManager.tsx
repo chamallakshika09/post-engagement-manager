@@ -11,7 +11,6 @@ import {
   deleteSelectedPosts,
   fetchPosts,
   openModal,
-  removePost,
   selectCurrentPage,
   selectCurrentPost,
   selectFetchPostsError,
@@ -31,6 +30,11 @@ import {
   updatePost,
   selectUpdatePostStatus,
   selectUpdatePostError,
+  selectDeletePostStatus,
+  selectDeletePostError,
+  selectDeleteSelectedPostsStatus,
+  selectDeleteSelectedPostsError,
+  deletePost,
 } from '../store/postsSlice';
 import ErrorMessage from '../components/ErrorMessage';
 import Loader from '../components/Loader';
@@ -64,6 +68,10 @@ const PostEngagementManager = () => {
   const currentPage = useAppSelector(selectCurrentPage);
   const updateStatus = useAppSelector(selectUpdatePostStatus);
   const updateError = useAppSelector(selectUpdatePostError);
+  const deleteStatus = useAppSelector(selectDeletePostStatus);
+  const deleteError = useAppSelector(selectDeletePostError);
+  const deleteMultiStatus = useAppSelector(selectDeleteSelectedPostsStatus);
+  const deleteMultiError = useAppSelector(selectDeleteSelectedPostsError);
 
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
@@ -115,9 +123,11 @@ const PostEngagementManager = () => {
     if (modalType === 'rename' && currentPost) {
       dispatch(updatePost({ ...currentPost, name: newName }));
     } else if (modalType === 'delete' && currentPost) {
-      dispatch(removePost(currentPost.key));
+      dispatch(deletePost(currentPost.key));
     } else if (modalType === 'bulkDelete') {
-      dispatch(deleteSelectedPosts());
+      if (selectedPosts.length > 0) {
+        dispatch(deleteSelectedPosts());
+      }
     }
     dispatch(closeModal());
   };
@@ -135,6 +145,22 @@ const PostEngagementManager = () => {
       setNotification({ message: updateError ?? 'Failed to update post', type: 'error' });
     }
   }, [updateStatus, updateError]);
+
+  useEffect(() => {
+    if (deleteStatus === 'succeeded') {
+      setNotification({ message: 'Post deleted successfully!', type: 'success' });
+    } else if (deleteStatus === 'failed') {
+      setNotification({ message: deleteError ?? 'Failed to delete post', type: 'error' });
+    }
+  }, [deleteStatus, deleteError]);
+
+  useEffect(() => {
+    if (deleteMultiStatus === 'succeeded') {
+      setNotification({ message: 'Posts deleted successfully!', type: 'success' });
+    } else if (deleteMultiStatus === 'failed') {
+      setNotification({ message: deleteMultiError ?? 'Failed to delete posts', type: 'error' });
+    }
+  }, [deleteMultiStatus, deleteMultiError]);
 
   useEffect(() => {
     if (notification) {

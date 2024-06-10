@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction, createAsyncThunk, createSelector } from '@reduxjs/toolkit';
 import { Post } from '../types/data';
 import { initialPosts } from '../data/posts';
+import { RootState } from '.';
 
 export const fetchPosts = createAsyncThunk('posts/fetchPosts', async () => {
   return new Promise<Post[]>((resolve) =>
@@ -31,9 +32,28 @@ export const updatePost = createAsyncThunk('posts/updatePost', async (post: Post
   );
 });
 
-interface PostsState {
+export const deletePost = createAsyncThunk('posts/deletePost', async (id: string) => {
+  return new Promise<string>((resolve) =>
+    setTimeout(() => {
+      resolve(id);
+    }, 1000)
+  );
+});
+
+export const deleteSelectedPosts = createAsyncThunk('posts/deleteSelectedPosts', async (_, thunkAPI) => {
+  return new Promise<string[]>((resolve) =>
+    setTimeout(() => {
+      const state = thunkAPI.getState() as RootState;
+      resolve(state.posts.selectedPosts);
+    }, 1000)
+  );
+});
+
+type ThunkStatus = 'idle' | 'loading' | 'succeeded' | 'failed';
+
+type PostsState = {
   posts: Post[];
-  fetchPostsStatus: 'idle' | 'loading' | 'succeeded' | 'failed';
+  fetchPostsStatus: ThunkStatus;
   fetchPostsError: string | null;
   selectedPosts: string[];
   searchQuery: string;
@@ -43,11 +63,15 @@ interface PostsState {
   modalType: 'rename' | 'delete' | 'bulkDelete' | null;
   currentPost: Post | null;
   newName: string;
-  fetchPostStatus: 'idle' | 'loading' | 'succeeded' | 'failed';
+  fetchPostStatus: ThunkStatus;
   fetchPostError: string | null;
-  updatePostStatus: 'idle' | 'loading' | 'succeeded' | 'failed';
+  updatePostStatus: ThunkStatus;
   updatePostError: string | null;
-}
+  deletePostStatus: ThunkStatus;
+  deletePostError: string | null;
+  deleteSelectedPostsStatus: ThunkStatus;
+  deleteSelectedPostsError: string | null;
+};
 
 const initialState: PostsState = {
   posts: [],
@@ -65,6 +89,10 @@ const initialState: PostsState = {
   fetchPostError: null,
   updatePostStatus: 'idle',
   updatePostError: null,
+  deletePostStatus: 'idle',
+  deletePostError: null,
+  deleteSelectedPostsStatus: 'idle',
+  deleteSelectedPostsError: null,
 };
 
 const postsSlice = createSlice({
@@ -74,15 +102,8 @@ const postsSlice = createSlice({
     addPost: (state, action: PayloadAction<Post>) => {
       state.posts.push(action.payload);
     },
-    removePost: (state, action: PayloadAction<string>) => {
-      state.posts = state.posts.filter((post) => post.key !== action.payload);
-    },
     setSelectedPosts: (state, action: PayloadAction<string[]>) => {
       state.selectedPosts = action.payload;
-    },
-    deleteSelectedPosts: (state) => {
-      state.posts = state.posts.filter((post) => !state.selectedPosts.includes(post.key));
-      state.selectedPosts = [];
     },
     setSearchQuery: (state, action: PayloadAction<string>) => {
       state.searchQuery = action.payload;
@@ -156,6 +177,31 @@ const postsSlice = createSlice({
       state.updatePostStatus = 'failed';
       state.updatePostError = action.error.message ?? 'Something went wrong';
     });
+
+    builder.addCase(deletePost.pending, (state) => {
+      state.deletePostStatus = 'loading';
+    });
+    builder.addCase(deletePost.fulfilled, (state, action: PayloadAction<string>) => {
+      state.deletePostStatus = 'succeeded';
+      state.posts = state.posts.filter((post) => post.key !== action.payload);
+    });
+    builder.addCase(deletePost.rejected, (state, action) => {
+      state.deletePostStatus = 'failed';
+      state.deletePostError = action.error.message ?? 'Something went wrong';
+    });
+
+    builder.addCase(deleteSelectedPosts.pending, (state) => {
+      state.deleteSelectedPostsStatus = 'loading';
+    });
+    builder.addCase(deleteSelectedPosts.fulfilled, (state, action: PayloadAction<string[]>) => {
+      state.deleteSelectedPostsStatus = 'succeeded';
+      state.posts = state.posts.filter((post) => !action.payload.includes(post.key));
+      state.selectedPosts = [];
+    });
+    builder.addCase(deleteSelectedPosts.rejected, (state, action) => {
+      state.deleteSelectedPostsStatus = 'failed';
+      state.deleteSelectedPostsError = action.error.message ?? 'Something went wrong';
+    });
   },
   selectors: {
     selectPosts: (sliceState) => sliceState.posts,
@@ -173,13 +219,15 @@ const postsSlice = createSlice({
     selectFetchPostError: (sliceState) => sliceState.fetchPostError,
     selectUpdatePostStatus: (sliceState) => sliceState.updatePostStatus,
     selectUpdatePostError: (sliceState) => sliceState.updatePostError,
+    selectDeletePostStatus: (sliceState) => sliceState.deletePostStatus,
+    selectDeletePostError: (sliceState) => sliceState.deletePostError,
+    selectDeleteSelectedPostsStatus: (sliceState) => sliceState.deleteSelectedPostsStatus,
+    selectDeleteSelectedPostsError: (sliceState) => sliceState.deleteSelectedPostsError,
   },
 });
 
 export const {
   addPost,
-  removePost,
-  deleteSelectedPosts,
   setSelectedPosts,
   setSearchQuery,
   setSortConfig,
@@ -206,6 +254,10 @@ export const {
   selectFetchPostError,
   selectUpdatePostStatus,
   selectUpdatePostError,
+  selectDeletePostStatus,
+  selectDeletePostError,
+  selectDeleteSelectedPostsStatus,
+  selectDeleteSelectedPostsError,
 } = postsSlice.selectors;
 
 export default postsSlice.reducer;
