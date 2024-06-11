@@ -36,10 +36,10 @@ const AutoResponse = ({ post, updatePost }: { post: Post; updatePost: (post: Pos
           onChange={(v) => updatePost({ ...post, commentType: v })}
           additionalClasses="w-full"
         />
-        {post.commentType === 'static' && (
+        {post?.commentType === 'static' && (
           <div className="text-center">
             <br />
-            {post.comments.map((comment, index) => (
+            {post?.comments?.map((comment, index) => (
               <CommentInput
                 key={index}
                 value={comment}
@@ -48,16 +48,18 @@ const AutoResponse = ({ post, updatePost }: { post: Post; updatePost: (post: Pos
               />
             ))}
             <br />
-            <button
-              className="btn btn-primary"
-              onClick={() => updatePost({ ...post, comments: [...post.comments, ''] })}
-            >
-              Add Comment
-            </button>
+            {post?.comments?.length < 10 && (
+              <button
+                className="btn btn-primary"
+                onClick={() => updatePost({ ...post, comments: [...post.comments, ''] })}
+              >
+                Add Comment
+              </button>
+            )}
           </div>
         )}
 
-        {post.commentType === 'open-ai' && (
+        {post?.commentType === 'open-ai' && (
           <>
             <SelectInput
               label="Select Integration"

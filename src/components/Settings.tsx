@@ -64,7 +64,10 @@ const Settings = ({ post, updatePost }: { post: Post; updatePost: (post: Post) =
           placeholder="Specify Keywords"
           value={excludeKeywords}
           onChange={(e) => setExcludeKeywords(e.target.value)}
-          onAdd={() => updatePost({ ...post, excludeKeywords: [...post.excludeKeywords, excludeKeywords] })}
+          onAdd={() => {
+            updatePost({ ...post, excludeKeywords: [...post.excludeKeywords, excludeKeywords] });
+            setExcludeKeywords('');
+          }}
           tags={post.excludeKeywords}
           onRemove={(kw: string) =>
             updatePost({ ...post, excludeKeywords: post.excludeKeywords.filter((w) => w !== kw) })
@@ -76,7 +79,10 @@ const Settings = ({ post, updatePost }: { post: Post; updatePost: (post: Post) =
           placeholder="Specify Keywords"
           value={triggerKeywords}
           onChange={(e) => setTriggerKeywords(e.target.value)}
-          onAdd={() => updatePost({ ...post, triggerKeywords: [...post.triggerKeywords, triggerKeywords] })}
+          onAdd={() => {
+            updatePost({ ...post, triggerKeywords: [...post.triggerKeywords, triggerKeywords] });
+            setTriggerKeywords('');
+          }}
           tags={post.triggerKeywords}
           onRemove={(kw: string) =>
             updatePost({ ...post, triggerKeywords: post.triggerKeywords.filter((w) => w !== kw) })
