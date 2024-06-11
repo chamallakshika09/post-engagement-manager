@@ -1,7 +1,7 @@
-import instagramImage from '../assets/img/instagram.png';
-import messengerImage from '../assets/img/messenger.png';
 import { ColumnConfig, DropdownListItem } from '../types/ui';
 import DropdownList from './DropdownList';
+import instagramImage from '../assets/img/instagram.svg';
+import messengerImage from '../assets/img/messenger.svg';
 
 const imageMap: { [key: string]: string } = {
   instagram: instagramImage,
